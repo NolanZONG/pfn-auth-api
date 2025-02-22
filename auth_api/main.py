@@ -3,7 +3,8 @@ from typing import Annotated
 
 from fastapi import FastAPI
 
-from auth_api.database import Base, engine, SessionLocal, preset_user
+from auth_api.database import Base, engine, SessionLocal
+from auth_api.model import AuthData
 from auth_api.repository import AuthDataRepository
 
 
@@ -12,7 +13,7 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     session = SessionLocal()
     try:
-        session.add(preset_user)
+        session.add(AuthData(user_id="TaroYamada", password="PaSSwd4TY", nickname="Taro", comment="I'm happy."))
         session.commit()
     except Exception as e:
         print(e)
