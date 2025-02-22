@@ -12,7 +12,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-from auth_api.model import AuthData
+from .model import AuthData
 
 
 db_user = os.environ["DB_USER"]
