@@ -9,7 +9,7 @@ from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 
 from auth_api.model import AuthData
-from auth_api.database import SessionLocal
+from auth_api.database import SessionLocal, Base, engine
 
 
 class AuthDataRepository:

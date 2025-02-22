@@ -3,14 +3,24 @@ from typing import Annotated
 
 from fastapi import FastAPI
 
-from auth_api.database import init_db
+from auth_api.database import Base, engine, SessionLocal, preset_user
 from auth_api.repository import AuthDataRepository
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
+    Base.metadata.create_all(bind=engine)
+    session = SessionLocal()
+    try:
+        session.add(preset_user)
+        session.commit()
+    except Exception as e:
+        print(e)
+    finally:
+        session.close()
+
     yield
+
 
 app = FastAPI(lifespan=lifespan)
 
