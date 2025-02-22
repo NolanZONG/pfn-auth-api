@@ -6,7 +6,7 @@ This module defines an SQLAlchemy model for storing user auth data in the MySQL 
 
 from sqlalchemy import Column, String
 
-from .database import Base
+from auth_api.database import Base
 
 
 class AuthData(Base):
