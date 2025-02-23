@@ -34,7 +34,7 @@ class AuthDataRepository:
             self.session.commit()
         except IntegrityError:
             self.session.rollback()
-            raise HTTPException(status_code=400, detail="already exist")
+            raise HTTPException(status_code=400, detail="insert_user_duplicated")
         finally:
             self.session.close()
 
