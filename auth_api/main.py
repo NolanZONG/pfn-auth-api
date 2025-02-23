@@ -54,5 +54,5 @@ async def patch_user():
 @app.post("/close")
 async def delete_user():
     repo = AuthDataRepository()
-    repo.delete_user(AuthData(user_id="TaroYamada", password="PaSSwd4TY", nickname="Taro", comment="I'm happy."))
+    repo.delete_user(user_id="TaroYamada")
     return {"message": "Hello World"}
