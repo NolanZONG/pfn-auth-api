@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from starlette.responses import JSONResponse
 
 from auth_api.database import Base, engine, SessionLocal
@@ -29,7 +30,7 @@ repo_service = AuthDataRepository()
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Hello! This is PFN coding test"}
 
 
 @app.post("/signup")
@@ -65,7 +66,6 @@ async def delete_user():
 
 @app.exception_handler(HTTPException)
 async def custom_http_exception_handler(request: Request, exc: HTTPException):
-
     if exc.status_code == 400 and exc.detail == "insert_user_duplicated":
         return JSONResponse(
             status_code=exc.status_code,
@@ -76,3 +76,32 @@ async def custom_http_exception_handler(request: Request, exc: HTTPException):
         )
 
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    for error in exc.errors():
+        if error["type"] == "missing":
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "message": "Account creation failed",
+                    "cause": "required user_id and password"
+                }
+            )
+        return JSONResponse(
+            status_code=400,
+            content={
+                "message": "Account creation failed",
+                "cause": f"{'.'.join(str(loc) for loc in error["loc"][1:])}:{error['msg']}"
+            }
+        )
+
+@app.exception_handler(ValueError)
+async def value_error_handler(request: Request, exc: ValueError):
+    return JSONResponse(
+        status_code=400,
+        content={
+            "message": "Account creation failed",
+            "cause": str(exc)
+        }
+    )
