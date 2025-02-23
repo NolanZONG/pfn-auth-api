@@ -4,6 +4,8 @@ Auth Data Repository
 This module provides a repository class for managing user auth data in the database.
 The `AuthDataRepository` class interacts with the `AuthData` model to perform operations.
 """
+from typing import Optional
+
 from fastapi import HTTPException
 
 from sqlalchemy.exc import IntegrityError
@@ -22,23 +24,56 @@ class AuthDataRepository:
         """
         self.session = SessionLocal()
 
-    def insert_user(self, user_id: str, password: str) -> None:
-        """
-        Insert a user auth data into the database based on the provided user_id and password
 
-        :param user_id: the provided user_id
-        :param password: the provided password
-        :return: None
+    def insert_user(self, auth_data: AuthData) -> None:
+        """
+        Insert a user auth data record into the database
         """
         try:
-
-            self.session.add(AuthData(user_id=user_id, password=password))
+            self.session.add(auth_data)
             self.session.commit()
         except IntegrityError:
             self.session.rollback()
-            raise HTTPException(status_code=400, detail={
-  "message": "Account creation failed",
-  "cause": "already same user_id is used"
-})
+            raise HTTPException(status_code=400, detail="already exist")
+        finally:
+            self.session.close()
+
+    def delete_user(self, auth_data: AuthData) -> None:
+        """
+        Delete the provided user auth data record from the database
+        """
+        try:
+            self.session.delete(auth_data)
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+        finally:
+            self.session.close()
+
+    def fetch_user(self, user_id: str) -> Optional[AuthData]:
+        """
+        Fetch a user auth data record by specified user_id
+        """
+        try:
+            auth_data = self.session.get(AuthData, user_id)
+            return auth_data
+        except Exception:
+            print("error")
+        finally:
+            self.session.close()
+
+    def update_user(self, auth_data: AuthData) -> None:
+        """
+        Update a user auth data record by provided new object
+        """
+        try:
+            self.session.query(AuthData).filter(AuthData.user_id==auth_data.user_id).update({
+            "password": auth_data.password,
+            "nickname": auth_data.nickname,
+            "comment": auth_data.comment
+        })
+        except Exception:
+            self.session.rollback()
+            print("error")
         finally:
             self.session.close()

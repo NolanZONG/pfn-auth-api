@@ -31,9 +31,28 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/api/{user_id}")
-async def test(user_id):
+@app.post("/signup")
+async def signup(user_id):
     repo = AuthDataRepository()
-    repo.insert_user(user_id, "123")
-    repo.insert_user(user_id, "122")
+    repo.insert_user(AuthData(user_id="zong", password="www"))
+    return {"message": "Hello World"}
+
+@app.get("/users/{user_id}")
+async def get_user(user_id: str):
+    repo = AuthDataRepository()
+    c = repo.fetch_user("zong")
+    return {"message": f"{c.password}"}
+
+
+@app.patch("/users/{user_id}")
+async def patch_user():
+    repo = AuthDataRepository()
+    repo.update_user(AuthData(user_id="zong", password="yyy", nickname="mao"))
+    return {"message": "Hello World"}
+
+
+@app.post("/close")
+async def delete_user():
+    repo = AuthDataRepository()
+    repo.delete_user(AuthData(user_id="TaroYamada", password="PaSSwd4TY", nickname="Taro", comment="I'm happy."))
     return {"message": "Hello World"}
