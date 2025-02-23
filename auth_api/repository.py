@@ -43,7 +43,7 @@ class AuthDataRepository:
         Delete the user auth data record from the database by user_id
         """
         try:
-            data = self.fetch_user(user_id)
+            data = self.session.get(AuthData, user_id)
             self.session.delete(data)
             self.session.commit()
         except Exception:
