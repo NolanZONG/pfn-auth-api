@@ -38,12 +38,13 @@ class AuthDataRepository:
         finally:
             self.session.close()
 
-    def delete_user(self, auth_data: AuthData) -> None:
+    def delete_user(self, user_id: str) -> None:
         """
-        Delete the provided user auth data record from the database
+        Delete the user auth data record from the database by user_id
         """
         try:
-            self.session.delete(auth_data)
+            data = self.fetch_user(user_id)
+            self.session.delete(data)
             self.session.commit()
         except Exception:
             self.session.rollback()
@@ -67,11 +68,14 @@ class AuthDataRepository:
         Update a user auth data record by provided new object
         """
         try:
-            self.session.query(AuthData).filter(AuthData.user_id==auth_data.user_id).update({
-            "password": auth_data.password,
-            "nickname": auth_data.nickname,
-            "comment": auth_data.comment
-        })
+            self.session.query(AuthData).filter(AuthData.user_id==auth_data.user_id).update(
+                {
+                    "password": auth_data.password,
+                    "nickname": auth_data.nickname,
+                    "comment": auth_data.comment
+                }
+            )
+            self.session.commit()
         except Exception:
             self.session.rollback()
             print("error")

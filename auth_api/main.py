@@ -32,7 +32,7 @@ async def root():
 
 
 @app.post("/signup")
-async def signup(user_id):
+async def signup():
     repo = AuthDataRepository()
     repo.insert_user(AuthData(user_id="zong", password="www"))
     return {"message": "Hello World"}
