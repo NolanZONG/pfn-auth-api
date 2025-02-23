@@ -17,5 +17,5 @@ class AuthData(Base):
 
     user_id = Column(String(32), primary_key=True)
     password = Column(String(32), nullable=False)
-    nickname = Column(String(255), nullable=True)
-    comment = Column(String(1024), nullable=True)
+    nickname = Column(String(32), nullable=True)
+    comment = Column(String(128), nullable=True)

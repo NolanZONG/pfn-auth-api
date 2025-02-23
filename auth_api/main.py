@@ -8,7 +8,7 @@ from auth_api.auth import authenticate
 from auth_api.database import Base, engine, SessionLocal
 from auth_api.model import AuthData
 from auth_api.repository import AuthDataRepository
-from auth_api.validator import SignupRequest
+from auth_api.validator import SignupRequest, UpdateAccountRequest
 
 
 @asynccontextmanager
@@ -49,21 +49,51 @@ async def signup(request_body: SignupRequest):
 
 @app.get("/users/{user_id}")
 async def get_user(user_id: str, auth_user_id: str = Depends(authenticate)):
-    c = repo_service.fetch_user("zong")
-    return {"user_id": f"{user_id}", "name": auth_user_id}
+    if user_id != auth_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No permission")
 
+    auth_data = repo_service.fetch_user(user_id)
+    if not auth_data:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="user_not_found")
+
+    rsp = {
+        "message": "User details by user_id",
+        "user": {
+            "user_id": user_id,
+            "nickname": user_id if not auth_data.nickname else auth_data.nickname
+        }
+    }
+    if auth_data.comment:
+        rsp["user"]["comment"] = auth_data.comment
+
+    return rsp
 
 
 @app.patch("/users/{user_id}")
-async def patch_user(user_id: str):
-    repo_service.update_user(AuthData(user_id="zong", password="yyy", nickname="mao"))
-    return {"message": "Hello World"}
+async def patch_user(user_id: str, request_body: UpdateAccountRequest, auth_user_id: str = Depends(authenticate)):
+    if user_id != auth_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No permission")
+    if "user_id" in UpdateAccountRequest or "password" in UpdateAccountRequest:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No updatable")
+    auth_data = repo_service.fetch_user(auth_user_id)
+    auth_data.nickname = request_body.nickname
+    auth_data.comment = request_body.comment
+    repo_service.update_user(auth_data)
+    return {
+        "message": "User successfully updated",
+        "recipe": [
+            {
+                "nickname": request_body.nickname if not request_body.nickname else auth_user_id,
+                "comment": request_body.comment
+            }
+        ]
+    }
 
 
 @app.post("/close")
-async def delete_user():
-    repo_service.delete_user(user_id="TaroYamada")
-    return {"message": "Hello World"}
+async def delete_user(auth_user_id: str = Depends(authenticate)):
+    repo_service.delete_user(user_id=auth_user_id)
+    return {"message": "Account and user successfully removed"}
 
 
 @app.exception_handler(HTTPException)
@@ -74,6 +104,14 @@ async def custom_http_exception_handler(request: Request, exc: HTTPException):
             content={
                 "message": "Account creation failed",
                 "cause": "already same user_id is used"
+            }
+        )
+    if exc.status_code == status.HTTP_400_BAD_REQUEST and "updatable" in exc.detail:
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "message": "User updation failed",
+                "cause": "not updatable user_id and password"
             }
         )
     if exc.status_code == status.HTTP_404_NOT_FOUND:
@@ -113,10 +151,19 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.exception_handler(ValueError)
 async def value_error_handler(request: Request, exc: ValueError):
-    return JSONResponse(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        content={
-            "message": "Account creation failed",
-            "cause": str(exc)
-        }
-    )
+    if "required" in str(exc):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "message": "User updation failed",
+                "cause": "required nickname or comment"
+            }
+        )
+    else:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "message": "Account creation failed",
+                "cause": str(exc)
+            }
+        )
