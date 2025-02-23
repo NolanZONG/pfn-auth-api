@@ -17,12 +17,12 @@ class SignupRequest(BaseModel):
 
     @field_validator("user_id")
     def user_id_pattern(cls, value):
-        if re.match(r"\W", value):
+        if re.search(r"[^a-zA-Z0-9]", value):
             raise ValueError("user_id can only contain half-width alphanumeric characters")
         return value
 
     @field_validator("password")
-    def user_id_pattern(cls, value):
-        if re.match(r"[\s\00-\x1F\x7F]", value):
+    def password_pattern(cls, value):
+        if re.search(r"[\s\00-\x1F\x7F]", value):
             raise ValueError("password cannot contain spaces or control characters")
         return value
