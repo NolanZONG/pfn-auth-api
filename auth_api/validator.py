@@ -33,7 +33,7 @@ class UpdateAccountRequest(BaseModel):
     Validator class for validating update account request body
     """
     nickname: str | None = Field(default=None, max_length=30)
-    comment: str | None = Field(default=None)
+    comment: str | None = Field(default=None, max_length=100)
 
     @field_validator("nickname")
     def nickname_pattern(cls, value):

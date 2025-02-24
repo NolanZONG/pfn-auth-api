@@ -21,11 +21,13 @@ def authenticate(credentials: HTTPBasicCredentials = Depends(security)):
 
     fetched_auth_data = repo.fetch_user(credentials.username)
     if not fetched_auth_data:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="auth_user_not_found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"message": "No User found"})
 
     if not secrets.compare_digest(credentials.password, fetched_auth_data.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="auth_failed"
+            detail={"message": "Authentication Failed"},
+            headers={"WWW-Authenticate": "Basic"}
         )
+
     return credentials.username

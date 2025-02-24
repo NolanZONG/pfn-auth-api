@@ -4,6 +4,7 @@ Auth Data Repository
 This module provides a repository class for managing user auth data in the database.
 The `AuthDataRepository` class interacts with the `AuthData` model to perform operations.
 """
+
 from typing import Optional
 
 from fastapi import HTTPException
@@ -34,7 +35,13 @@ class AuthDataRepository:
             self.session.commit()
         except IntegrityError:
             self.session.rollback()
-            raise HTTPException(status_code=400, detail="insert_user_duplicated")
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "message": "Account creation failed",
+                    "cause": "already same user_id is used"
+                }
+            )
         finally:
             self.session.close()
 
