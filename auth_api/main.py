@@ -1,3 +1,7 @@
+"""
+FastAPI Application for authentication server
+
+"""
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request, status, Depends
