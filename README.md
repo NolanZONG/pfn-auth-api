@@ -37,30 +37,11 @@ pfn-auth-api/
 - repository.py: provides a repository for the CRUD of user auth data
 - validator.py: defines the validators for validating query parameters
 
-
-### Secrets management
-#### Development Environment
-
-The API key and other sensitive data are stored in a separate configuration file called `.env`, 
-which is specific to the development environment. This file should not be committed to version control systems. 
-The application code retrieves the password from the environment variable. 
-This approach allows for easy configuration and avoids exposing passwords in the code. 
-I believe this is sufficient for development purposes.
-
-#### Production Environment
-We can consider use a secure secrets management system, for example:
-- [HashiCorp Vault](https://www.hashicorp.com/products/vault)
-- [AWS Secrets Manager](https://aws.amazon.com/jp/secrets-manager/)
-- [GCP Secrets Manager](https://cloud.google.com/secret-manager)
-
-These tools provide secure storage and retrieval of sensitive data, including api_key, passwords. 
-Access to the secrets can be tightly controlled, and the passwords can be rotated regularly for enhanced security.
-
 ## Usage
 This project was tested successfully on 
 - Ubuntu 24.04 LTS
-- Docker version 20.10.14, build a224086
-- docker-compose version 1.29.2, build 5becea4c
+- Docker version 28.0.0, build f9ced58
+- Docker Compose version v2.33.0
 
 You can run it on your local environment by following these steps:
 
@@ -93,3 +74,17 @@ auth_api_db    mysql:8.0          "docker-entrypoint.s…"   db        38 second
 You can also find the auto-generated API documentation on `http://{domain}:{port}/docs`
 
 6. You can use `docker-compose down` to stop and remove the service
+
+## Todo and Improvement
+This is just a prototype implementation due to the **time limitation**. 
+If the goal is to make it production-ready, at least the following parts are needed:
+
+- Add unit tests for each module and improve test coverage.
+- Improve the comments to make the generated Open API doc clearly.
+- The sensitive data are stored in a separate configuration file called `.env` currently, this should be sufficient and enough for development purposes, but we can consider use a secure secrets management tool in production
+- Implement a service layer(e.g. `service.py`) to make the code structure clearer.
+- Currently, the application is simply deployed on a single server. But I think the API performance requirements should be clarified before implementation, and then the code can be optimized accordingly, including infrastructure decisions.
+- Use tools like Terraform to manage infrastructure as code.
+- Integrate appropriate monitoring tools.
+
+In addition, if possible, the API design itself may have room for improvement, which can be discussed in more detail.
