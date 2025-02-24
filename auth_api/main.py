@@ -76,7 +76,7 @@ async def get_user(user_id: str, auth_user_id: str = Depends(authenticate)):
 @app.patch("/users/{user_id}")
 async def patch_user(user_id: str, request_body: UpdateAccountRequest, auth_user_id: str = Depends(authenticate)):
     if user_id != auth_user_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail={"message": "No permission for Update"})
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail={"message": "No Permission for Update"})
 
     auth_data = repo_service.fetch_user(auth_user_id)
     auth_data.nickname = request_body.nickname
