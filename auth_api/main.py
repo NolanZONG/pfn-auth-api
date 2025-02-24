@@ -102,7 +102,11 @@ async def delete_user(auth_user_id: str = Depends(authenticate)):
 @app.exception_handler(HTTPException)
 async def custom_http_exception_handler(request: Request, exc: HTTPException):
     if exc.status_code == status.HTTP_401_UNAUTHORIZED:
-        return JSONResponse(status_code=exc.status_code, content=exc.detail, headers=exc.headers)
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"message": "Authentication Failed"},
+            headers=exc.headers
+        )
     else:
         return JSONResponse(status_code=exc.status_code, content=exc.detail)
 

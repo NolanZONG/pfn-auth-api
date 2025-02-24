@@ -17,13 +17,6 @@ def authenticate(request: Request, credentials: HTTPBasicCredentials = Depends(s
     """
     HTTP basic auth
     """
-    if "Authorization" not in request.headers:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"message": "Authentication Failed"},
-            headers={"WWW-Authenticate": "Basic"}
-        )
-
     repo = AuthDataRepository()
 
     fetched_auth_data = repo.fetch_user(credentials.username)
