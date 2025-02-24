@@ -35,6 +35,8 @@ class UpdateAccountRequest(BaseModel):
     nickname: str | None = Field(default=None, max_length=30)
     comment: str | None = Field(default=None, max_length=100)
 
+    model_config = {"extra": "forbid"}
+
     @field_validator("nickname")
     def nickname_pattern(cls, value):
         if re.search(r"[\00-\x1F\x7F]", value):

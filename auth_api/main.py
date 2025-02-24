@@ -73,14 +73,7 @@ async def get_user(user_id: str, auth_user_id: str = Depends(authenticate)):
 async def patch_user(user_id: str, request_body: UpdateAccountRequest, auth_user_id: str = Depends(authenticate)):
     if user_id != auth_user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No permission for Update")
-    if "user_id" in request_body.model_fields_set or "password" in request_body.model_fields_set:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={
-                "message": "User updation failed",
-                "cause": "not updatable user_id and password"
-            }
-        )
+
     auth_data = repo_service.fetch_user(auth_user_id)
     auth_data.nickname = request_body.nickname
     auth_data.comment = request_body.comment
@@ -89,7 +82,7 @@ async def patch_user(user_id: str, request_body: UpdateAccountRequest, auth_user
         "message": "User successfully updated",
         "recipe": [
             {
-                "nickname": request_body.nickname if not request_body.nickname else auth_user_id,
+                "nickname": request_body.nickname if request_body.nickname else auth_user_id,
                 "comment": request_body.comment
             }
         ]
@@ -121,6 +114,23 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
                     "cause": "required user_id and password"
                 }
             )
+        elif error["type"] == "extra_forbidden":
+            if "user_id" in error["loc"] or "password" in error["loc"]:
+                return JSONResponse(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    content={
+                        "message": "User updation failed",
+                        "cause": "not updatable user_id and password"
+                    }
+                )
+            else:
+                return JSONResponse(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    content={
+                        "message": "User updation failed",
+                        "cause": f"not updatable {"".join(error["loc"])}"
+                    }
+                )
         else:
             if "user_id" in error["loc"] or "password" in error["loc"]:
                 return JSONResponse(
