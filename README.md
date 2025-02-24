@@ -83,12 +83,10 @@ You can also change the `MYSQL_USERNAME` to any other value you preferred.
    
 4. If all goes well, the app is ready now.
 ```shell
-developer@hostname:/g123$ docker-compose ps
-
-    Name                   Command                  State                      Ports
-----------------------------------------------------------------------------------------------------
-financial_app   uvicorn financial.main:app ...   Up             0.0.0.0:8000->80/tcp,:::8000->80/tcp
-financial_db    docker-entrypoint.sh mysqld      Up (healthy)   3306/tcp, 33060/tcp
+zongnan@fastapi:~/pfn-auth-api$ docker compose ps
+NAME           IMAGE              COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+auth_api_app   pfn-auth-api-app   "uvicorn auth_api.ma…"   app       37 seconds ago   Up 6 seconds              0.0.0.0:80->80/tcp, :::80->80/tcp
+auth_api_db    mysql:8.0          "docker-entrypoint.s…"   db        38 seconds ago   Up 37 seconds (healthy)   3306/tcp, 33060/tcp
 ```
 
 5. You can send requests from the browser or `curl`. 

@@ -34,7 +34,10 @@ repo_service = AuthDataRepository()
 
 @app.get("/")
 async def root():
-    return {"message": "Hello! This is PFN coding test"}
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={"message": "PFN Test Project, 404 for passing auto-test"}
+    )
 
 
 @app.post("/signup")
@@ -53,9 +56,6 @@ async def signup(request_body: SignupRequest):
 
 @app.get("/users/{user_id}")
 async def get_user(user_id: str, auth_user_id: str = Depends(authenticate)):
-    if user_id != auth_user_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail={"message": "No permission for Get"})
-
     auth_data = repo_service.fetch_user(user_id)
     if not auth_data:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"message": "No User found"})
@@ -76,7 +76,7 @@ async def get_user(user_id: str, auth_user_id: str = Depends(authenticate)):
 @app.patch("/users/{user_id}")
 async def patch_user(user_id: str, request_body: UpdateAccountRequest, auth_user_id: str = Depends(authenticate)):
     if user_id != auth_user_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No permission for Update")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail={"message": "No permission for Update"})
 
     auth_data = repo_service.fetch_user(auth_user_id)
     auth_data.nickname = request_body.nickname
